@@ -13,6 +13,7 @@
         <MenuItem Header="{Binding PiaPortDisplay}"/>
         <MenuItem Header="{Binding QbitPortDisplay}"/>
         <MenuItem Header="Check Now" Command="{Binding CheckNowCommand}"/>
+        <MenuItem Header="{Binding PauseText}" Command="{Binding PauseCommand}"/>
         <Separator />
         <MenuItem Header="Exit" Command="{Binding ExitCommand}"/>
     </ContextMenu>

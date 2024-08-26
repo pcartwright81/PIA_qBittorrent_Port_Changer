@@ -1,8 +1,6 @@
 ﻿namespace PIA_qBittorrent_Port_Changer
 {
     using H.NotifyIcon;
-    using Microsoft.Win32;
-    using System.Timers;
     using System.Windows;
 
     /// <summary>
@@ -19,30 +17,13 @@
             notifyIcon = (TaskbarIcon)FindResource("NotifyIcon");
             notifyIcon.DataContext = trayIconViewModel;
             notifyIcon.ForceCreate();
-
-            // Set up timer for check.
-            PortChecker portChecker = new(trayIconViewModel);
-            var aTimer = new Timer();
-            aTimer.Elapsed += (sender, e) => portChecker.CheckPorts();
-            aTimer.Interval = TimeSpan.FromHours(5).TotalMilliseconds;
-            aTimer.Enabled = true;
+            var portChecker = new PortChecker(trayIconViewModel);
             portChecker.CheckPorts();
-
-            // Register from resume from sleep event.
-            SystemEvents.PowerModeChanged += (sender, e) =>
-            {
-                switch (e.Mode)
-                {
-                    case PowerModes.Resume:
-                        portChecker.CheckPorts();
-                        break;
-                };
-            };
         }
       
         protected override void OnExit(ExitEventArgs e)
         {
-            notifyIcon?.Dispose(); //the icon would clean up automatically, but this is cleaner
+            notifyIcon?.Dispose();
             base.OnExit(e);
         }
     }

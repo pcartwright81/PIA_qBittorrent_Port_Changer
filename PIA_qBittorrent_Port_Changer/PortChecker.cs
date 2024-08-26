@@ -1,8 +1,10 @@
 ﻿namespace PIA_qBittorrent_Port_Changer
 {
     using IniParser;
+    using Microsoft.Win32;
     using System.Diagnostics;
     using System.IO;
+    using System.Timers;
 
     public class PortChecker
     {
@@ -11,12 +13,33 @@
         public PortChecker(TrayIconViewModel viewModel)
         {
             ViewModel = viewModel;
-            viewModel.checkNowEvent += (sender, e) => CheckPorts();
-        }
 
+            var aTimer = new Timer();
+            aTimer.Elapsed += (sender, e) => CheckPorts();
+            aTimer.Interval = TimeSpan.FromHours(5).TotalMilliseconds;
+            aTimer.Enabled = true;
+            // Register from resume from sleep event.
+            SystemEvents.PowerModeChanged += (sender, e) =>
+            {
+                switch (e.Mode)
+                {
+                    case PowerModes.Resume:
+                        CheckPorts();
+                        break;
+                };
+            };
+           
+            viewModel.CheckNowCommand = new DelegateCommand(CheckPorts);
+            viewModel.PauseCommand = new DelegateCommand(() => 
+            {
+                ViewModel.IsPaused = !ViewModel.IsPaused;
+                aTimer.Enabled = !aTimer.Enabled;
+            });
+        }
 
         public void CheckPorts()
         {
+            Console.WriteLine("Checking Ports");
             var piaPort = GetForwardedPort();
             var settingsFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), @"qBittorrent\qBittorrent.ini");
             var parser = new FileIniDataParser();
@@ -57,6 +80,6 @@
             {
                 process.Kill();
             }
-        }
+        }       
     }
 }

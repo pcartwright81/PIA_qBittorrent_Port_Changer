@@ -8,24 +8,20 @@
 
     public class TrayIconViewModel : INotifyPropertyChanged
     {
-        public EventHandler? checkNowEvent;
         private string? piaPort;
         private string? qbitPort;
+        private bool isPaused;
 
         public TrayIconViewModel()
         {
-            ExitCommand = new DelegateCommand(ExecuteExitCommand);
-            CheckNowCommand = new DelegateCommand(() => checkNowEvent?.Invoke(this, EventArgs.Empty));
-        }
-
-        private void ExecuteExitCommand()
-        {
-            Application.Current.Shutdown();
+            ExitCommand = new DelegateCommand(Application.Current.Shutdown);
         }
 
         public ICommand? ExitCommand { get; set; }
 
         public ICommand? CheckNowCommand { get; set; }
+
+        public ICommand? PauseCommand { get; set; }
 
         public string? PiaPort
         {
@@ -46,11 +42,21 @@
             }
         }
 
+        public bool IsPaused
+        {
+            get => isPaused;
+            set
+            {
+                isPaused = value;
+                OnPropertyChanged(nameof(PauseText));
+            }
+        }
+
         public string QbitPortDisplay => $"Qbit:{QbitPort}";
 
         public string PiaPortDisplay => $"Pia:{PiaPort}";
 
-      
+        public string PauseText => IsPaused ?  "Resume" : "Pause";
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
