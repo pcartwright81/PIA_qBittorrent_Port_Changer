@@ -5,25 +5,27 @@
     using System.Diagnostics;
     using System.IO;
     using System.Timers;
+    using Prism.Commands;
 
     public class PortChecker
     {
         public TrayIconViewModel ViewModel { get; }
+        private bool IsRunning { get; set; }
 
         public PortChecker(TrayIconViewModel viewModel)
         {
             ViewModel = viewModel;
-
+            var piaPort = GetForwardedPort();
             var aTimer = new Timer();
             aTimer.Elapsed += (sender, e) => CheckPorts();
             aTimer.Interval = TimeSpan.FromHours(5).TotalMilliseconds;
             aTimer.Enabled = true;
-            // Register from resume from sleep event.
+            // Register resume from sleep event.
             SystemEvents.PowerModeChanged += (sender, e) =>
             {
                 switch (e.Mode)
                 {
-                    case PowerModes.Resume:
+                    case PowerModes.Resume:                        
                         CheckPorts();
                         break;
                 };
@@ -39,8 +41,18 @@
 
         public void CheckPorts()
         {
+            if (IsRunning)
+            {
+                return;
+            }
             Console.WriteLine("Checking Ports");
+            IsRunning = true;
             var piaPort = GetForwardedPort();
+            while (piaPort.Equals("Inactive"))
+            {               
+                piaPort = GetForwardedPort();
+                Thread.Sleep(TimeSpan.FromSeconds(5));
+            }
             var settingsFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), @"qBittorrent\qBittorrent.ini");
             var parser = new FileIniDataParser();
             var data = parser.ReadFile(settingsFilePath);
@@ -56,6 +68,7 @@
 
                 Process.Start(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), @"qBittorrent\qbittorrent.exe"));
             }
+            IsRunning = false;
         }
         
         private static string GetForwardedPort()
