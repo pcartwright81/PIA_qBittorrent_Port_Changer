@@ -67,6 +67,7 @@
                 parser.WriteFile(settingsFilePath, data);
 
                 Process.Start(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), @"qBittorrent\qbittorrent.exe"));
+                ViewModel.QbitPort = piaPort;
             }
             IsRunning = false;
         }
