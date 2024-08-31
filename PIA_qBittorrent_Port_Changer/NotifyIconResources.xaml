@@ -21,9 +21,11 @@
 
     <!--  the application's NotifyIcon - started from App.xaml.cs. Declares its own view model.  -->
     <tb:TaskbarIcon
+        d:DataContext="{d:DesignInstance local:TrayIconViewModel}"
         x:Key="NotifyIcon"
         IconSource="Resources/Icon.Ico"
-        ContextMenu="{StaticResource SysTrayMenu}">
+        ContextMenu="{StaticResource SysTrayMenu}"
+        ToolTipText="{Binding ToolTipText}">
     </tb:TaskbarIcon>
 
 </ResourceDictionary>
