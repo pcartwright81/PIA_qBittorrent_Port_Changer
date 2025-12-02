@@ -1,0 +1,3 @@
+{
+  "extends": ["github>pcartwright81/renovate-default-config"]
+}
